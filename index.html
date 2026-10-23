@@ -1,853 +1,178 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phison Terminal & Forex Coffee Suite</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        gold: {
-                            400: '#f7d070',
-                            500: '#f0b90b',
-                            600: '#d9a406',
-                        },
-                        darkbg: '#0b0f19',
-                        cardbg: '#131b2e',
-                        bordercolor: '#1e293b',
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Phison Terminal | Premium 4H Suite</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #131b2e;
+            --accent-gold: #f0b90b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #1e293b;
+            --buy-color: #10b981;
+            --sell-color: #ef4444;
+        }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0b0f19;
-            color: #f3f4f6;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
         }
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
         }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        h1 {
+            font-size: 1.4rem;
+            color: var(--accent-gold);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        ::-webkit-scrollbar-track {
-            background: #0b0f19;
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            margin-bottom: 20px;
         }
-        ::-webkit-scrollbar-thumb {
+        .card h2 {
+            font-size: 1.1rem;
+            margin-top: 0;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        select {
             background: #1e293b;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            outline: none;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+        .badge {
+            padding: 4px 8px;
             border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.8rem;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #f0b90b;
-        }
-        .glow-gold {
-            box-shadow: 0 0 15px rgba(240, 185, 11, 0.2);
-        }
-        .glow-green {
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
-        }
-        .glow-red {
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
-        }
-        .glass-panel {
-            background: rgba(19, 27, 46, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(30, 41, 59, 0.8);
+        .buy { background: rgba(16, 185, 129, 0.15); color: var(--buy-color); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .sell { background: rgba(239, 68, 68, 0.15); color: var(--sell-color); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .live-dot {
+            height: 8px;
+            width: 8px;
+            background-color: var(--buy-color);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px var(--buy-color);
         }
     </style>
 </head>
-<body class="bg-darkbg text-gray-100 min-h-screen flex flex-col antialiased selection:bg-gold-500 selection:text-black">
+<body>
 
-    <!-- TOP HEADER -->
-    <header class="border-b border-bordercolor bg-cardbg/90 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <!-- Brand Logo -->
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500 to-amber-700 flex items-center justify-center text-black font-black text-xl shadow-lg glow-gold">
-                    ⚡
-                </div>
-                <div>
-                    <div class="flex items-center space-x-2">
-                        <span class="font-extrabold text-lg sm:text-xl tracking-wider text-white">PHISON<span class="text-gold-500">TERMINAL</span></span>
-                        <span class="text-xs px-2 py-0.5 rounded bg-gold-500/10 text-gold-500 border border-gold-500/30 font-semibold uppercase">4H Pro</span>
-                    </div>
-                    <p class="text-[10px] text-gray-400 font-medium tracking-wide">FOREX COFFEE & MULTI-STRATEGY SUITE</p>
-                </div>
-            </div>
+    <div class="header">
+        <h1>⚡ PHISON TERMINAL <span style="font-size:0.6rem; color:var(--text-muted); font-weight:normal;"><span class="live-dot"></span> LIVE 4H SUITE</span></h1>
+        <select id="assetSelect" onchange="changeAsset()">
+            <option value="OANDA:XAUUSD">Gold (XAUUSD)</option>
+            <option value="FX:EURUSD">EUR/USD</option>
+            <option value="FX:GBPUSD">GBP/USD</option>
+            <option value="FX:USDJPY">USD/JPY</option>
+            <option value="CRYPTO:BTCUSD">Bitcoin (BTCUSD)</option>
+            <option value="FX:USDCHF">USD/CHF</option>
+            <option value="FX:USDCAD">USD/CAD</option>
+            <option value="FX:GBPJPY">GBP/JPY</option>
+        </select>
+    </div>
 
-            <!-- Quick Navigation Tabs (Desktop) -->
-            <nav class="hidden md:flex items-center space-x-1 bg-darkbg/60 p-1.5 rounded-xl border border-bordercolor">
-                <button onclick="switchTab('terminal')" id="nav-terminal" class="tab-btn active-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 text-gold-500 bg-cardbg border border-gold-500/30">
-                    <i class="fa-solid fa-chart-line"></i>
-                    <span>Trading Terminal</span>
-                </button>
-                <button onclick="switchTab('matrix')" id="nav-matrix" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 text-gray-400 hover:text-white hover:bg-cardbg/50">
-                    <i class="fa-solid fa-border-all"></i>
-                    <span>Signal Matrix (20+)</span>
-                </button>
-                <button onclick="switchTab('coffee')" id="nav-coffee" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 text-gray-400 hover:text-white hover:bg-cardbg/50">
-                    <i class="fa-solid fa-mug-hot text-amber-500"></i>
-                    <span>Forex Coffee Prep</span>
-                </button>
-            </nav>
+    <!-- Live TradingView Chart -->
+    <div class="card">
+        <h2>
+            <span>📈 Interactive Chart</span>
+            <span id="currentAssetLabel" style="font-size: 0.85rem; color: var(--accent-gold);">OANDA:XAUUSD (4H)</span>
+        </h2>
+        <div class="tradingview-widget-container" style="height:420px; width:100%;">
+          <div id="tradingview_chart" style="height:100%;width:100%"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+          <script type="text/javascript">
+          let tvWidget;
+          function initChart(symbol) {
+              document.getElementById('tradingview_chart').innerHTML = "";
+              tvWidget = new TradingView.widget({
+                "autosize": true,
+                "symbol": symbol,
+                "interval": "240",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "toolbar_bg": "#131b2e",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "container_id": "tradingview_chart"
+              });
+          }
+          initChart("OANDA:XAUUSD");
 
-            <!-- Status Indicator & Clock -->
-            <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex flex-col text-right mono">
-                    <span id="live-clock" class="text-sm font-bold text-gray-200">18:36:00 UTC</span>
-                    <span class="text-[11px] text-emerald-400 flex items-center justify-end">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-1.5"></span>
-                        4H Candle Sync Active
-                    </span>
-                </div>
-                <button onclick="refreshData()" class="p-2.5 rounded-xl bg-cardbg hover:bg-bordercolor border border-bordercolor text-gold-500 transition hover:rotate-180 duration-500" title="Refresh Market Engine">
-                    <i class="fa-solid fa-rotate"></i>
-                </button>
-            </div>
+          function changeAsset() {
+              const selected = document.getElementById('assetSelect').value;
+              document.getElementById('currentAssetLabel').innerText = selected + " (4H)";
+              initChart(selected);
+          }
+          </script>
         </div>
+    </div>
+
+    <!-- Active Signals Matrix -->
+    <div class="card">
+        <h2>🚨 Live Strategy Scanner Feed</h2>
+        <table>
+            <tr><th>Asset</th><th>Strategy</th><th>Action</th></tr>
+            <tr>
+                <td><strong>XAUUSD</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Support Retest Active</span></td>
+                <td style="font-size:0.8rem;">Trend Continuation (EMA)</td>
+                <td><span class="badge buy">BUY</span></td>
+            </tr>
+            <tr>
+                <td><strong>BTCUSD</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Structure Shift Cross</span></td>
+                <td style="font-size:0.8rem;">Phison 20 MA</td>
+                <td><span class="badge buy">BUY</span></td>
+            </tr>
+            <tr>
+                <td><strong>EURUSD</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">Resistance Rejection</span></td>
+                <td style="font-size:0.8rem;">Trend Continuation (EMA)</td>
+                <td><span class="badge sell">SELL</span></td>
+            </tr>
+        </table>
+    </div>
 
-        <!-- Mobile Navigation Bar -->
-        <div class="md:hidden flex border-t border-bordercolor bg-darkbg/90 p-1 justify-around">
-            <button onclick="switchTab('terminal')" id="mob-nav-terminal" class="mob-tab-btn flex-1 py-2 text-xs font-semibold text-gold-500 text-center border-b-2 border-gold-500">
-                <i class="fa-solid fa-chart-line block mb-1 text-sm"></i> Terminal
-            </button>
-            <button onclick="switchTab('matrix')" id="mob-nav-matrix" class="mob-tab-btn flex-1 py-2 text-xs font-semibold text-gray-400 text-center">
-                <i class="fa-solid fa-border-all block mb-1 text-sm"></i> Matrix
-            </button>
-            <button onclick="switchTab('coffee')" id="mob-nav-coffee" class="mob-tab-btn flex-1 py-2 text-xs font-semibold text-gray-400 text-center">
-                <i class="fa-solid fa-mug-hot block mb-1 text-sm text-amber-500"></i> Coffee Prep
-            </button>
-        </div>
-    </header>
-
-    <!-- PAIR BAR / TICKER STRIP -->
-    <section class="bg-cardbg/60 border-b border-bordercolor py-2 px-4 overflow-x-auto whitespace-nowrap scrollbar-none">
-        <div class="max-w-7xl mx-auto flex items-center space-x-2 text-xs" id="asset-pills-container">
-            <!-- Asset pills dynamically populated -->
-        </div>
-    </section>
-
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
-
-        <!-- TAB 1: TRADING TERMINAL & LIVE CHART -->
-        <div id="tab-terminal" class="tab-content block space-y-6">
-            
-            <!-- Asset & Quick Info Banner -->
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                
-                <!-- Selected Pair Summary -->
-                <div class="lg:col-span-3 glass-panel p-4 rounded-2xl border border-bordercolor flex flex-wrap items-center justify-between gap-4">
-                    <div class="flex items-center space-x-4">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500/20 to-gold-500/20 border border-gold-500/40 flex items-center justify-center text-gold-500 text-2xl font-bold">
-                            <i id="selected-asset-icon" class="fa-solid fa-coins"></i>
-                        </div>
-                        <div>
-                            <div class="flex items-center space-x-3">
-                                <h2 id="display-symbol" class="text-2xl font-black text-white tracking-wide">XAUUSD</h2>
-                                <span id="display-name" class="text-xs px-2.5 py-1 rounded-md bg-gray-800 text-gray-300 font-medium">Gold / US Dollar</span>
-                                <span class="text-xs px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">4H Timeframe</span>
-                            </div>
-                            <div class="flex items-center space-x-4 mt-1 text-xs text-gray-400">
-                                <span>TradingView Exchange: <strong id="display-tv-symbol" class="text-gray-200">OANDA:XAUUSD</strong></span>
-                                <span>•</span>
-                                <span>Market Status: <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-circle text-[8px] mr-1"></i> OPEN</span></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Asset Selector Dropdown -->
-                    <div class="flex items-center space-x-2 w-full sm:w-auto">
-                        <label class="text-xs text-gray-400 font-semibold uppercase tracking-wider hidden sm:block">Switch Asset:</label>
-                        <select id="asset-selector" onchange="changeSelectedAsset(this.value)" class="bg-darkbg border border-bordercolor text-gold-500 text-sm font-semibold rounded-xl px-4 py-2.5 focus:outline-none focus:border-gold-500 w-full sm:w-60 shadow-inner cursor-pointer">
-                            <!-- Populated dynamically -->
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Signal Status Card for Selected Asset -->
-                <div class="glass-panel p-4 rounded-2xl border border-bordercolor flex flex-col justify-between relative overflow-hidden">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Signal (4H)</span>
-                        <span id="signal-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-400 border border-gray-700">SCANNING</span>
-                    </div>
-                    <div class="my-2">
-                        <div id="signal-title" class="text-lg font-bold text-white">No Trigger Active</div>
-                        <p id="signal-desc" class="text-xs text-gray-400 mt-0.5">Price consolidating near EMA 20 structural support.</p>
-                    </div>
-                    <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-bordercolor/60">
-                        <span>Strategy 1: <strong id="strat1-state" class="text-gray-300">Neutral</strong></span>
-                        <span>Strategy 2: <strong id="strat2-state" class="text-gray-300">Neutral</strong></span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TradingView Interactive Widget & Strategy Panel Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Chart Container (Takes 2 Columns on Large Screens) -->
-                <div class="lg:col-span-2 glass-panel rounded-2xl border border-bordercolor overflow-hidden flex flex-col h-[560px]">
-                    <div class="bg-cardbg/80 px-4 py-3 border-b border-bordercolor flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <i class="fa-solid fa-chart-candlestick text-gold-500"></i>
-                            <span class="text-xs font-bold text-gray-200 uppercase tracking-wider">Interactive TradingView Chart (EMA 20, 50, 100, 200)</span>
-                        </div>
-                        <div class="flex items-center space-x-2 text-xs">
-                            <span class="px-2 py-0.5 rounded bg-darkbg text-gray-400 border border-bordercolor">4H Chart</span>
-                            <a id="tv-external-link" href="#" target="_blank" class="text-gold-500 hover:text-white transition" title="Open in TradingView">
-                                <i class="fa-solid fa-up-right-from-square"></i>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="flex-1 w-full relative bg-darkbg" id="tradingview-container">
-                        <!-- TradingView Widget Script replaces this -->
-                    </div>
-                </div>
-
-                <!-- Live Strategy Inspector & Real-Time Readout -->
-                <div class="space-y-4">
-                    
-                    <!-- Strategy 1 Inspector -->
-                    <div class="glass-panel p-5 rounded-2xl border border-bordercolor space-y-3">
-                        <div class="flex items-center justify-between border-b border-bordercolor/80 pb-2.5">
-                            <div class="flex items-center space-x-2">
-                                <span class="w-2 h-2 rounded-full bg-gold-500"></span>
-                                <h3 class="text-sm font-bold text-gold-500 uppercase tracking-wider">Trend Continuation</h3>
-                            </div>
-                            <span class="text-[10px] text-gray-400 bg-darkbg px-2 py-0.5 rounded border border-bordercolor">EMA 20/50/100/200</span>
-                        </div>
-                        <p class="text-xs text-gray-300 leading-relaxed">
-                            Requires strict EMA alignment + price retest of key Support or Resistance zones.
-                        </p>
-                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-                            <div class="p-2.5 rounded-xl bg-darkbg border border-bordercolor">
-                                <span class="text-[10px] text-gray-500 block uppercase">Alignment</span>
-                                <span id="tc-alignment" class="text-emerald-400 font-bold">BULLISH ALIGNED</span>
-                            </div>
-                            <div class="p-2.5 rounded-xl bg-darkbg border border-bordercolor">
-                                <span class="text-[10px] text-gray-500 block uppercase">S/R Proximity</span>
-                                <span id="tc-proximity" class="text-gray-300 font-bold">At Support (0.2%)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Strategy 2 Inspector -->
-                    <div class="glass-panel p-5 rounded-2xl border border-bordercolor space-y-3">
-                        <div class="flex items-center justify-between border-b border-bordercolor/80 pb-2.5">
-                            <div class="flex items-center space-x-2">
-                                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                                <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider">Phison 20 MA Shift</h3>
-                            </div>
-                            <span class="text-[10px] text-gray-400 bg-darkbg px-2 py-0.5 rounded border border-bordercolor">Structure Crossover</span>
-                        </div>
-                        <p class="text-xs text-gray-300 leading-relaxed">
-                            Triggers when the previous 4H candle closes across the 20 EMA structure line.
-                        </p>
-                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-                            <div class="p-2.5 rounded-xl bg-darkbg border border-bordercolor">
-                                <span class="text-[10px] text-gray-500 block uppercase">Prev Candle Close</span>
-                                <span id="ph-prev-close" class="text-gray-200 font-bold">2,724.50</span>
-                            </div>
-                            <div class="p-2.5 rounded-xl bg-darkbg border border-bordercolor">
-                                <span class="text-[10px] text-gray-500 block uppercase">20 EMA Value</span>
-                                <span id="ph-ema20-val" class="text-gold-500 font-bold">2,718.10</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Key Price Levels & Indicators Matrix -->
-                    <div class="glass-panel p-5 rounded-2xl border border-bordercolor space-y-3">
-                        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider flex items-center justify-between">
-                            <span>Key Level Matrix</span>
-                            <span class="text-[10px] text-gray-500">Calculated on 4H</span>
-                        </h3>
-                        <div class="space-y-2 text-xs font-mono">
-                            <div class="flex justify-between p-2 rounded-lg bg-darkbg/80 border border-bordercolor/60">
-                                <span class="text-gray-400">Resistance Zone:</span>
-                                <span id="val-res" class="text-red-400 font-bold">2,748.20</span>
-                            </div>
-                            <div class="flex justify-between p-2 rounded-lg bg-darkbg/80 border border-bordercolor/60">
-                                <span class="text-gray-400">Support Zone:</span>
-                                <span id="val-sup" class="text-emerald-400 font-bold">2,705.80</span>
-                            </div>
-                            <div class="flex justify-between p-2 rounded-lg bg-darkbg/80 border border-bordercolor/60">
-                                <span class="text-gray-400">EMA 200 (Major Trend):</span>
-                                <span id="val-ema200" class="text-gold-400 font-bold">2,680.00</span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 2: MULTI-ASSET SIGNAL MATRIX (20+ ASSETS) -->
-        <div id="tab-matrix" class="tab-content hidden space-y-6">
-            <div class="glass-panel p-6 rounded-2xl border border-bordercolor space-y-4">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <h2 class="text-xl font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-border-all text-gold-500"></i>
-                            <span>20+ Asset Signal Matrix (4H Scan)</span>
-                        </h2>
-                        <p class="text-xs text-gray-400 mt-1">Simulated scan covering Forex, Gold, and Crypto using Phison & Trend Continuation rules.</p>
-                    </div>
-                    <div class="flex items-center space-x-3 w-full sm:w-auto">
-                        <input type="text" id="matrix-search" onkeyup="filterMatrix()" placeholder="Search pair (e.g. GBP, BTC)..." class="bg-darkbg border border-bordercolor text-xs text-white rounded-xl px-4 py-2.5 focus:outline-none focus:border-gold-500 w-full sm:w-64">
-                    </div>
-                </div>
-
-                <!-- Matrix Table -->
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs border-collapse">
-                        <thead>
-                            <tr class="bg-darkbg/80 border-b border-bordercolor text-gray-400 font-semibold uppercase tracking-wider">
-                                <th class="p-3.5">Asset</th>
-                                <th class="p-3.5">Category</th>
-                                <th class="p-3.5">Estimated Price</th>
-                                <th class="p-3.5">4H Trend Bias</th>
-                                <th class="p-3.5">Trend Continuation</th>
-                                <th class="p-3.5">Phison 20 MA Shift</th>
-                                <th class="p-3.5 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="matrix-tbody" class="divide-y divide-bordercolor/60 font-mono">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- TAB 3: FOREX COFFEE MORNING PREP SUITE -->
-        <div id="tab-coffee" class="tab-content hidden space-y-6">
-            
-            <!-- Coffee Header Banner -->
-            <div class="glass-panel p-6 rounded-2xl border border-bordercolor bg-gradient-to-r from-amber-950/30 via-cardbg to-darkbg flex flex-col md:flex-row items-center justify-between gap-6">
-                <div class="space-y-2 text-center md:text-left">
-                    <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold">
-                        <i class="fa-solid fa-mug-hot"></i>
-                        <span>Morning Market Prep Routine</span>
-                    </div>
-                    <h2 class="text-2xl font-black text-white">Forex Coffee & Market Sentiment Suite</h2>
-                    <p class="text-xs text-gray-300 max-w-xl">
-                        Grab your coffee and conduct your daily 4H structural analysis before taking trades. Verify fundamental news events, check global currency bias, and complete your trade risk checklist.
-                    </p>
-                </div>
-                <div class="flex items-center space-x-3 bg-darkbg/80 p-4 rounded-xl border border-bordercolor text-center">
-                    <div>
-                        <span class="text-2xl font-black text-gold-500 block">3 / 3</span>
-                        <span class="text-[10px] text-gray-400 uppercase font-bold">Rules Verified</span>
-                    </div>
-                    <div class="w-px h-8 bg-bordercolor"></div>
-                    <div>
-                        <span class="text-2xl font-black text-emerald-400 block">1.0%</span>
-                        <span class="text-[10px] text-gray-400 uppercase font-bold">Max Risk / Trade</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Currency Strength Meter & News Calendar Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Currency Strength Meter (Column 1) -->
-                <div class="glass-panel p-5 rounded-2xl border border-bordercolor space-y-4">
-                    <div class="flex items-center justify-between border-b border-bordercolor pb-3">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-gauge-high text-gold-500"></i>
-                            <span>Currency Strength Matrix</span>
-                        </h3>
-                        <span class="text-[10px] text-gray-400">Live Relative Index</span>
-                    </div>
-
-                    <div class="space-y-3 text-xs" id="currency-meter-container">
-                        <!-- Dynamically populated bars -->
-                    </div>
-                </div>
-
-                <!-- High Impact Economic Calendar (Column 2 & 3) -->
-                <div class="lg:col-span-2 glass-panel p-5 rounded-2xl border border-bordercolor space-y-4">
-                    <div class="flex items-center justify-between border-b border-bordercolor pb-3">
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-calendar-day text-red-500"></i>
-                            <span>High-Impact Economic Calendar (News Filter)</span>
-                        </h3>
-                        <span class="text-xs text-red-400 font-semibold bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
-                            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Avoid Trading 15m Before/After Red Folder
-                        </span>
-                    </div>
-
-                    <div class="space-y-2 text-xs font-mono" id="news-events-container">
-                        <!-- Populated dynamically -->
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Trade Execution Checklist & Morning Notes -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                <!-- Interactive Checklist -->
-                <div class="glass-panel p-5 rounded-2xl border border-bordercolor space-y-4">
-                    <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-bordercolor pb-3">
-                        <i class="fa-solid fa-list-check text-emerald-400"></i>
-                        <span>Pre-Trade Confirmation Checklist</span>
-                    </h3>
-
-                    <div class="space-y-2.5 text-xs text-gray-300">
-                        <label class="flex items-center space-x-3 p-3 rounded-xl bg-darkbg border border-bordercolor/80 cursor-pointer hover:border-gold-500/50 transition">
-                            <input type="checkbox" checked class="w-4 h-4 rounded text-gold-500 focus:ring-gold-500 bg-gray-800 border-gray-700">
-                            <span>4H Candle has officially closed (no mid-candle execution).</span>
-                        </label>
-                        <label class="flex items-center space-x-3 p-3 rounded-xl bg-darkbg border border-bordercolor/80 cursor-pointer hover:border-gold-500/50 transition">
-                            <input type="checkbox" checked class="w-4 h-4 rounded text-gold-500 focus:ring-gold-500 bg-gray-800 border-gray-700">
-                            <span>No high-impact red folder news for asset within 30 minutes.</span>
-                        </label>
-                        <label class="flex items-center space-x-3 p-3 rounded-xl bg-darkbg border border-bordercolor/80 cursor-pointer hover:border-gold-500/50 transition">
-                            <input type="checkbox" checked class="w-4 h-4 rounded text-gold-500 focus:ring-gold-500 bg-gray-800 border-gray-700">
-                            <span>Trend Continuation or Phison 20 MA Crossover validated.</span>
-                        </label>
-                        <label class="flex items-center space-x-3 p-3 rounded-xl bg-darkbg border border-bordercolor/80 cursor-pointer hover:border-gold-500/50 transition">
-                            <input type="checkbox" class="w-4 h-4 rounded text-gold-500 focus:ring-gold-500 bg-gray-800 border-gray-700">
-                            <span>Risk-to-Reward ratio is 1:2 minimum with proper stop loss placement.</span>
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Coffee Journal & Daily Notes -->
-                <div class="glass-panel p-5 rounded-2xl border border-bordercolor space-y-3 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-white flex items-center gap-2 border-b border-bordercolor pb-3">
-                            <i class="fa-solid fa-pen-to-square text-gold-500"></i>
-                            <span>Daily Morning Market Notes</span>
-                        </h3>
-                        <textarea id="market-notes" rows="5" class="w-full mt-3 bg-darkbg border border-bordercolor rounded-xl p-3 text-xs text-gray-200 focus:outline-none focus:border-gold-500 font-mono resize-none" placeholder="Write your daily observations here (e.g. Gold holding above 2,720 support; watching GBPUSD for 20 MA shift)..."></textarea>
-                    </div>
-                    <div class="flex items-center justify-between text-xs pt-2">
-                        <span id="notes-status" class="text-gray-500 text-[11px]">Auto-saved locally in browser</span>
-                        <button onclick="saveNotes()" class="px-4 py-2 rounded-xl bg-gold-500 text-black font-bold text-xs hover:bg-gold-400 transition">
-                            Save Notes
-                        </button>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="border-t border-bordercolor bg-cardbg/80 mt-12 py-6 text-center text-xs text-gray-500">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-2">
-                <span class="font-bold text-gray-300">Phison Terminal & Forex Coffee Suite</span>
-                <span>•</span>
-                <span>Cloud Signal Architecture</span>
-            </div>
-            <p>Designed for automated 4H Trend Continuation & Structure Shifts. For manual confirmation only.</p>
-        </div>
-    </footer>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // 20+ MONITORED ASSET LIST WITH TV SYMBOLS AND SIMULATED METRICS
-        const ASSETS = [
-            { symbol: "XAUUSD", name: "Gold / US Dollar", category: "Metals", tvSymbol: "OANDA:XAUUSD", icon: "fa-solid fa-coins", price: "2,725.40", bias: "BULLISH", tcSignal: "BUY", phSignal: "NONE" },
-            { symbol: "BTCUSD", name: "Bitcoin / US Dollar", category: "Crypto", tvSymbol: "BINANCE:BTCUSDT", icon: "fa-brands fa-bitcoin", price: "68,450.00", bias: "BULLISH", tcSignal: "NONE", phSignal: "BUY" },
-            { symbol: "EURUSD", name: "Euro / US Dollar", category: "Forex Major", tvSymbol: "OANDA:EURUSD", icon: "fa-solid fa-dollar-sign", price: "1.0845", bias: "BEARISH", tcSignal: "SELL", phSignal: "NONE" },
-            { symbol: "GBPUSD", name: "British Pound / USD", category: "Forex Major", tvSymbol: "OANDA:GBPUSD", icon: "fa-solid fa-sterling-sign", price: "1.2980", bias: "BULLISH", tcSignal: "NONE", phSignal: "BUY" },
-            { symbol: "USDJPY", name: "US Dollar / Japanese Yen", category: "Forex Major", tvSymbol: "OANDA:USDJPY", icon: "fa-solid fa-yen-sign", price: "152.30", bias: "BULLISH", tcSignal: "BUY", phSignal: "NONE" },
-            { symbol: "AUDUSD", name: "Australian Dollar / USD", category: "Forex Major", tvSymbol: "OANDA:AUDUSD", icon: "fa-solid fa-dollar-sign", price: "0.6650", bias: "BEARISH", tcSignal: "NONE", phSignal: "SELL" },
-            { symbol: "USDCAD", name: "US Dollar / Canadian Dollar", category: "Forex Major", tvSymbol: "OANDA:USDCAD", icon: "fa-solid fa-dollar-sign", price: "1.3820", bias: "BULLISH", tcSignal: "BUY", phSignal: "NONE" },
-            { symbol: "USDCHF", name: "US Dollar / Swiss Franc", category: "Forex Major", tvSymbol: "OANDA:USDCHF", icon: "fa-solid fa-franc-sign", price: "0.8660", bias: "BULLISH", tcSignal: "NONE", phSignal: "NONE" },
-            { symbol: "NZDUSD", name: "New Zealand Dollar / USD", category: "Forex Major", tvSymbol: "OANDA:NZDUSD", icon: "fa-solid fa-dollar-sign", price: "0.6010", bias: "BEARISH", tcSignal: "SELL", phSignal: "NONE" },
-            { symbol: "EURJPY", name: "Euro / Japanese Yen", category: "Forex Cross", tvSymbol: "OANDA:EURJPY", icon: "fa-solid fa-yen-sign", price: "165.15", bias: "BULLISH", tcSignal: "NONE", phSignal: "BUY" },
-            { symbol: "GBPJPY", name: "Pound / Japanese Yen", category: "Forex Cross", tvSymbol: "OANDA:GBPJPY", icon: "fa-solid fa-yen-sign", price: "197.80", bias: "BULLISH", tcSignal: "BUY", phSignal: "NONE" },
-            { symbol: "EURGBP", name: "Euro / British Pound", category: "Forex Cross", tvSymbol: "OANDA:EURGBP", icon: "fa-solid fa-sterling-sign", price: "0.8355", bias: "BEARISH", tcSignal: "NONE", phSignal: "SELL" },
-            { symbol: "AUDJPY", name: "Aussie Dollar / Yen", category: "Forex Cross", tvSymbol: "OANDA:AUDJPY", icon: "fa-solid fa-yen-sign", price: "101.20", bias: "NEUTRAL", tcSignal: "NONE", phSignal: "NONE" },
-            { symbol: "GBPCAD", name: "Pound / Canadian Dollar", category: "Forex Cross", tvSymbol: "OANDA:GBPCAD", icon: "fa-solid fa-dollar-sign", price: "1.7940", bias: "BULLISH", tcSignal: "BUY", phSignal: "NONE" },
-            { symbol: "AUDCAD", name: "Aussie / Canadian Dollar", category: "Forex Cross", tvSymbol: "OANDA:AUDCAD", icon: "fa-solid fa-dollar-sign", price: "0.9190", bias: "BEARISH", tcSignal: "NONE", phSignal: "NONE" },
-            { symbol: "EURAUD", name: "Euro / Australian Dollar", category: "Forex Cross", tvSymbol: "OANDA:EURAUD", icon: "fa-solid fa-dollar-sign", price: "1.6310", bias: "BULLISH", tcSignal: "NONE", phSignal: "BUY" },
-            { symbol: "GBPNZD", name: "Pound / NZ Dollar", category: "Forex Cross", tvSymbol: "OANDA:GBPNZD", icon: "fa-solid fa-dollar-sign", price: "2.1600", bias: "BULLISH", tcSignal: "BUY", phSignal: "NONE" },
-            { symbol: "CHFJPY", name: "Swiss Franc / Yen", category: "Forex Cross", tvSymbol: "OANDA:CHFJPY", icon: "fa-solid fa-yen-sign", price: "175.80", bias: "BULLISH", tcSignal: "NONE", phSignal: "NONE" },
-            { symbol: "CADJPY", name: "Canadian Dollar / Yen", category: "Forex Cross", tvSymbol: "OANDA:CADJPY", icon: "fa-solid fa-yen-sign", price: "110.20", bias: "NEUTRAL", tcSignal: "NONE", phSignal: "NONE" },
-            { symbol: "NZDCAD", name: "NZ Dollar / Canadian Dollar", category: "Forex Cross", tvSymbol: "OANDA:NZDCAD", icon: "fa-solid fa-dollar-sign", price: "0.8305", bias: "BEARISH", tcSignal: "SELL", phSignal: "NONE" },
-        ];
-
-        // CURRENCY STRENGTH DATA
-        const CURRENCY_STRENGTH = [
-            { name: "USD", value: 85, color: "bg-emerald-500" },
-            { name: "GBP", value: 72, color: "bg-emerald-400" },
-            { name: "GOLD (XAU)", value: 78, color: "bg-gold-500" },
-            { name: "BTC", value: 80, color: "bg-amber-500" },
-            { name: "CAD", value: 55, color: "bg-blue-500" },
-            { name: "EUR", value: 40, color: "bg-yellow-500" },
-            { name: "JPY", value: 25, color: "bg-red-500" },
-            { name: "AUD", value: 30, color: "bg-red-400" },
-        ];
-
-        // ECONOMIC CALENDAR DATA
-        const NEWS_EVENTS = [
-            { time: "12:30 UTC", currency: "USD", event: "Core Durable Goods Orders (MoM)", impact: "HIGH", forecast: "0.1%", previous: "0.5%" },
-            { time: "13:45 UTC", currency: "USD", event: "S&P Global Flash Manufacturing PMI", impact: "HIGH", forecast: "50.5", previous: "47.3" },
-            { time: "14:00 UTC", currency: "USD", event: "New Home Sales", impact: "MEDIUM", forecast: "710K", previous: "716K" },
-            { time: "07:00 UTC", currency: "GBP", event: "Retail Sales (MoM)", impact: "HIGH", forecast: "-0.3%", previous: "1.0%" },
-        ];
-
-        let currentAsset = ASSETS[0];
-
-        // INITIALIZATION ON PAGE LOAD
-        window.onload = function() {
-            updateClock();
-            setInterval(updateClock, 1000);
-            populateAssetPills();
-            populateAssetSelector();
-            renderMatrix();
-            renderCurrencyStrength();
-            renderNewsCalendar();
-            loadNotes();
-
-            // Initial chart render for default asset (XAUUSD)
-            renderTradingViewWidget(currentAsset.tvSymbol);
-            updateAssetInspector(currentAsset);
-        };
-
-        // REAL-TIME CLOCK
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toUTCString().split(' ')[4] + ' UTC';
-            document.getElementById('live-clock').innerText = timeString;
-        }
-
-        // TAB SWITCHING LOGIC
-        function switchTab(tabId) {
-            // Hide all tab content
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('block'));
-
-            // Show selected tab
-            const target = document.getElementById('tab-' + tabId);
-            if(target) {
-                target.classList.remove('hidden');
-                target.classList.add('block');
-            }
-
-            // Update desktop active tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 text-gray-400 hover:text-white hover:bg-cardbg/50";
-            });
-            const activeNav = document.getElementById('nav-' + tabId);
-            if(activeNav) {
-                activeNav.className = "tab-btn active-tab px-4 py-2 rounded-lg text-sm font-semibold transition-all flex items-center space-x-2 text-gold-500 bg-cardbg border border-gold-500/30";
-            }
-
-            // Update mobile active tab buttons
-            document.querySelectorAll('.mob-tab-btn').forEach(btn => {
-                btn.className = "mob-tab-btn flex-1 py-2 text-xs font-semibold text-gray-400 text-center";
-            });
-            const activeMobNav = document.getElementById('mob-nav-' + tabId);
-            if(activeMobNav) {
-                activeMobNav.className = "mob-tab-btn flex-1 py-2 text-xs font-semibold text-gold-500 text-center border-b-2 border-gold-500";
-            }
-        }
-
-        // POPULATE TICKER STRIP
-        function populateAssetPills() {
-            const container = document.getElementById('asset-pills-container');
-            container.innerHTML = '';
-
-            ASSETS.forEach(asset => {
-                const hasSignal = asset.tcSignal !== 'NONE' || asset.phSignal !== 'NONE';
-                const pill = document.createElement('button');
-                pill.onclick = () => {
-                    changeSelectedAsset(asset.symbol);
-                    switchTab('terminal');
-                };
-                pill.className = `flex items-center space-x-2 px-3 py-1.5 rounded-xl border transition cursor-pointer font-mono text-xs ${
-                    asset.symbol === currentAsset.symbol 
-                    ? 'bg-gold-500/15 border-gold-500/60 text-gold-500 font-bold' 
-                    : 'bg-darkbg border-bordercolor text-gray-300 hover:border-gray-600'
-                }`;
-
-                let signalBadge = '';
-                if(hasSignal) {
-                    const sigType = asset.tcSignal !== 'NONE' ? asset.tcSignal : asset.phSignal;
-                    const badgeBg = sigType === 'BUY' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400';
-                    signalBadge = `<span class="text-[9px] px-1.5 py-0.2 rounded ${badgeBg} font-extrabold">${sigType}</span>`;
-                }
-
-                pill.innerHTML = `
-                    <span>${asset.symbol}</span>
-                    <span class="text-gray-400">${asset.price}</span>
-                    ${signalBadge}
-                `;
-                container.appendChild(pill);
-            });
-        }
-
-        // POPULATE SELECTOR DROPDOWN
-        function populateAssetSelector() {
-            const selector = document.getElementById('asset-selector');
-            selector.innerHTML = '';
-
-            ASSETS.forEach(asset => {
-                const opt = document.createElement('option');
-                opt.value = asset.symbol;
-                opt.textContent = `${asset.symbol} - ${asset.name}`;
-                if(asset.symbol === currentAsset.symbol) opt.selected = true;
-                selector.appendChild(opt);
-            });
-        }
-
-        // CHANGE SELECTED ASSET
-        function changeSelectedAsset(symbol) {
-            const asset = ASSETS.find(a => a.symbol === symbol);
-            if(!asset) return;
-
-            currentAsset = asset;
-            document.getElementById('asset-selector').value = symbol;
-
-            // Update top ticker pills active state
-            populateAssetPills();
-
-            // Update visual elements
-            updateAssetInspector(asset);
-
-            // Re-render TradingView Widget
-            renderTradingViewWidget(asset.tvSymbol);
-        }
-
-        // UPDATE ASSET INSPECTOR UI
-        function updateAssetInspector(asset) {
-            document.getElementById('display-symbol').innerText = asset.symbol;
-            document.getElementById('display-name').innerText = asset.name;
-            document.getElementById('display-tv-symbol').innerText = asset.tvSymbol;
-            document.getElementById('selected-asset-icon').className = asset.icon + " text-2xl text-gold-500";
-
-            // Signal Badge & Card
-            const badge = document.getElementById('signal-badge');
-            const title = document.getElementById('signal-title');
-            const desc = document.getElementById('signal-desc');
-
-            const hasBUY = asset.tcSignal === 'BUY' || asset.phSignal === 'BUY';
-            const hasSELL = asset.tcSignal === 'SELL' || asset.phSignal === 'SELL';
-
-            if(hasBUY) {
-                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 glow-green animate-pulse";
-                badge.innerText = "BUY TRIGGER";
-                title.innerText = "BUY Signal Confirmed (4H)";
-                title.className = "text-lg font-bold text-emerald-400";
-                desc.innerText = `${asset.tcSignal === 'BUY' ? 'Trend Continuation alignment' : 'Phison 20 MA structure-shift'} validated.`;
-            } else if(hasSELL) {
-                badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/40 glow-red animate-pulse";
-                badge.innerText = "SELL TRIGGER";
-                title.innerText = "SELL Signal Confirmed (4H)";
-                title.className = "text-lg font-bold text-red-400";
-                desc.innerText = `${asset.tcSignal === 'SELL' ? 'Bearish Trend Continuation' : 'Phison 20 MA downward shift'} validated.`;
-            } else {
-                badge.className = "px-2.5 py-1 rounded-full text-xs font-bold bg-gray-800 text-gray-400 border border-gray-700";
-                badge.innerText = "NEUTRAL";
-                title.innerText = "No Trigger Active";
-                title.className = "text-lg font-bold text-white";
-                desc.innerText = "Price consolidating or waiting for 4H candle close.";
-            }
-
-            // Strategy readouts
-            document.getElementById('strat1-state').innerText = asset.tcSignal !== 'NONE' ? asset.tcSignal : 'Neutral';
-            document.getElementById('strat1-state').className = asset.tcSignal === 'BUY' ? 'text-emerald-400 font-bold' : (asset.tcSignal === 'SELL' ? 'text-red-400 font-bold' : 'text-gray-300');
-
-            document.getElementById('strat2-state').innerText = asset.phSignal !== 'NONE' ? asset.phSignal : 'Neutral';
-            document.getElementById('strat2-state').className = asset.phSignal === 'BUY' ? 'text-emerald-400 font-bold' : (asset.phSignal === 'SELL' ? 'text-red-400 font-bold' : 'text-gray-300');
-
-            // Set simulated level values based on asset price
-            const numPrice = parseFloat(asset.price.replace(',', ''));
-            document.getElementById('val-res').innerText = (numPrice * 1.008).toFixed(asset.symbol.includes('JPY') ? 2 : (asset.symbol === 'XAUUSD' ? 2 : 4));
-            document.getElementById('val-sup').innerText = (numPrice * 0.992).toFixed(asset.symbol.includes('JPY') ? 2 : (asset.symbol === 'XAUUSD' ? 2 : 4));
-            document.getElementById('val-ema200').innerText = (numPrice * 0.985).toFixed(asset.symbol.includes('JPY') ? 2 : (asset.symbol === 'XAUUSD' ? 2 : 4));
-            document.getElementById('ph-prev-close').innerText = asset.price;
-            document.getElementById('ph-ema20-val').innerText = (numPrice * 0.997).toFixed(asset.symbol.includes('JPY') ? 2 : (asset.symbol === 'XAUUSD' ? 2 : 4));
-
-            document.getElementById('tv-external-link').href = `https://www.tradingview.com/symbols/${asset.tvSymbol.replace(':', '-')}/`;
-        }
-
-        // EMBED TRADINGVIEW WIDGET
-        function renderTradingViewWidget(tvSymbol) {
-            const container = document.getElementById('tradingview-container');
-            container.innerHTML = ''; // Clear previous widget
-
-            const script = document.createElement('script');
-            script.type = 'text/javascript';
-            script.src = 'https://s3.tradingview.com/tv.js';
-            script.onload = function() {
-                if (typeof TradingView !== 'undefined') {
-                    new TradingView.widget({
-                        "autosize": true,
-                        "symbol": tvSymbol,
-                        "interval": "240", // 4 Hours
-                        "timezone": "Etc/UTC",
-                        "theme": "dark",
-                        "style": "1", // Candlesticks
-                        "locale": "en",
-                        "toolbar_bg": "#131b2e",
-                        "enable_publishing": false,
-                        "allow_symbol_change": true,
-                        "container_id": "tradingview-container",
-                        "studies": [
-                            "STD;EMA", // EMA 20
-                            "STD;EMA", // EMA 50
-                            "STD;EMA"  // EMA 200
-                        ]
-                    });
-                }
-            };
-            container.appendChild(script);
-        }
-
-        // RENDER SIGNAL MATRIX TABLE
-        function renderMatrix() {
-            const tbody = document.getElementById('matrix-tbody');
-            tbody.innerHTML = '';
-
-            ASSETS.forEach(asset => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-cardbg/40 transition border-b border-bordercolor/60";
-
-                const biasClass = asset.bias === 'BULLISH' ? 'text-emerald-400' : (asset.bias === 'BEARISH' ? 'text-red-400' : 'text-gray-400');
-                
-                const tcBadge = asset.tcSignal === 'BUY' 
-                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold">BUY (4H)</span>'
-                    : (asset.tcSignal === 'SELL' ? '<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold">SELL (4H)</span>' : '<span class="text-gray-500">-</span>');
-
-                const phBadge = asset.phSignal === 'BUY' 
-                    ? '<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold">BUY (4H)</span>'
-                    : (asset.phSignal === 'SELL' ? '<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/40 font-bold">SELL (4H)</span>' : '<span class="text-gray-500">-</span>');
-
-                tr.innerHTML = `
-                    <td class="p-3.5 font-bold text-white flex items-center space-x-2">
-                        <i class="${asset.icon} text-gold-500 text-sm"></i>
-                        <span>${asset.symbol}</span>
-                    </td>
-                    <td class="p-3.5 text-gray-400 font-sans">${asset.category}</td>
-                    <td class="p-3.5 text-gray-200">${asset.price}</td>
-                    <td class="p-3.5 font-bold ${biasClass}">${asset.bias}</td>
-                    <td class="p-3.5">${tcBadge}</td>
-                    <td class="p-3.5">${phBadge}</td>
-                    <td class="p-3.5 text-right font-sans">
-                        <button onclick="changeSelectedAsset('${asset.symbol}'); switchTab('terminal');" class="px-3 py-1 rounded-lg bg-gold-500/10 text-gold-500 border border-gold-500/30 hover:bg-gold-500 hover:text-black font-bold text-xs transition">
-                            Open Chart
-                        </button>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        // FILTER MATRIX BY SEARCH
-        function filterMatrix() {
-            const query = document.getElementById('matrix-search').value.toLowerCase();
-            const rows = document.querySelectorAll('#matrix-tbody tr');
-
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? '' : 'none';
-            });
-        }
-
-        // RENDER CURRENCY STRENGTH METER
-        function renderCurrencyStrength() {
-            const container = document.getElementById('currency-meter-container');
-            container.innerHTML = '';
-
-            CURRENCY_STRENGTH.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "space-y-1";
-                div.innerHTML = `
-                    <div class="flex justify-between font-mono font-semibold">
-                        <span class="text-gray-300">${item.name}</span>
-                        <span class="text-gold-500">${item.value}%</span>
-                    </div>
-                    <div class="w-full bg-darkbg h-2 rounded-full overflow-hidden border border-bordercolor/60">
-                        <div class="${item.color} h-full rounded-full transition-all duration-1000" style="width: ${item.value}%"></div>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // RENDER NEWS CALENDAR
-        function renderNewsCalendar() {
-            const container = document.getElementById('news-events-container');
-            container.innerHTML = '';
-
-            NEWS_EVENTS.forEach(ev => {
-                const div = document.createElement('div');
-                div.className = "p-3 rounded-xl bg-darkbg/90 border border-bordercolor/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2";
-                
-                const impactBadge = ev.impact === 'HIGH' 
-                    ? '<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 border border-red-500/30 font-extrabold text-[10px]">HIGH IMPACT</span>'
-                    : '<span class="px-2 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 font-bold text-[10px]">MEDIUM</span>';
-
-                div.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-gold-500 font-bold">${ev.time}</span>
-                        <span class="px-2 py-0.5 rounded bg-cardbg text-white border border-bordercolor font-bold text-[11px]">${ev.currency}</span>
-                        <span class="text-gray-200 font-medium font-sans">${ev.event}</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <span class="text-gray-400 text-[11px]">Fcst: <strong class="text-white">${ev.forecast}</strong></span>
-                        <span class="text-gray-400 text-[11px]">Prev: <strong class="text-white">${ev.previous}</strong></span>
-                        ${impactBadge}
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // NOTES LOCAL STORAGE
-        function saveNotes() {
-            const text = document.getElementById('market-notes').value;
-            localStorage.setItem('phison_coffee_notes', text);
-            const status = document.getElementById('notes-status');
-            status.innerText = "Saved successfully at " + new Date().toLocaleTimeString();
-            status.className = "text-emerald-400 text-[11px] font-bold";
-            setTimeout(() => {
-                status.innerText = "Auto-saved locally in browser";
-                status.className = "text-gray-500 text-[11px]";
-            }, 3000);
-        }
-
-        function loadNotes() {
-            const saved = localStorage.getItem('phison_coffee_notes');
-            if(saved) {
-                document.getElementById('market-notes').value = saved;
-            }
-        }
-
-        // MANUAL REFRESH ENGINE SIMULATION
-        function refreshData() {
-            // Re-render chart and update time
-            updateClock();
-            renderTradingViewWidget(currentAsset.tvSymbol);
-            
-            // Temporary feedback
-            const btn = event.currentTarget;
-            btn.classList.add('rotate-180');
-            setTimeout(() => btn.classList.remove('rotate-180'), 600);
-        }
-    </script>
 </body>
 </html>
